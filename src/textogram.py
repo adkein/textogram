@@ -2,6 +2,8 @@
 
 import ipdb
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 def textogram(vals, bins=None, fmt='{:5.1f}', with_counts=True):
@@ -19,19 +21,18 @@ def textogram(vals, bins=None, fmt='{:5.1f}', with_counts=True):
         n = len(vals)
         s += '\nitem count = ' + str(n)
         s += '\nmax_height_value = ' + str(int(h))
-        s += '\n'
     return s
 
 def main(args):
     with open(args.infile, 'rb') as fp:
-        vals = fp.readlines()
+        vals = [float(line.strip()) for line in fp]
     print textogram(vals, fmt=args.fmt)
 
 
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('infile', default='/dev/stdin')
+    parser.add_argument('infile', nargs='?', default='/dev/stdin')
     parser.add_argument('--fmt', '-f', default='{:5.1f}')
     args = parser.parse_args()
     main(args)
