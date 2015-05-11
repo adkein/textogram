@@ -1,0 +1,4 @@
+textogram
+====
+
+Text-based histograms.
