@@ -4,7 +4,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-def plot(vals, bins=None, fmt='{:5.1f}', with_counts=True, verbose=True):
+def plot(vals, bins=None, fmt='{:5.1f}', with_counts=True, display=True):
     bins = np.linspace(0, 1, 11) if bins is None else bins
     vals = np.array(vals)
     vals = vals[(vals >= bins[0]) & (vals <= bins[-1])]
@@ -19,9 +19,10 @@ def plot(vals, bins=None, fmt='{:5.1f}', with_counts=True, verbose=True):
         n = len(vals)
         s += '\nitem count = ' + str(n)
         s += '\nmax_height_value = ' + str(int(h))
-    if verbose:
+    if display:
         print s
-    return s
+    else:
+        return s
 
 def main(args):
     with open(args.infile, 'rb') as fp:
