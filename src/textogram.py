@@ -9,7 +9,7 @@ def plot(vals, bins=None, fmt='{:5.1f}', with_counts=True, verbose=True):
     vals = np.array(vals)
     vals = vals[(vals >= bins[0]) & (vals <= bins[-1])]
     bin_vals, left_edges, _ = plt.hist(vals, bins=bins)
-    s = ''
+    s = '\n'
     h = max(bin_vals)
     for i in range(len(left_edges)-1):
         right_edge = fmt.format(left_edges[i+1]) if i < len(left_edges) - 1 else '*'
@@ -19,6 +19,8 @@ def plot(vals, bins=None, fmt='{:5.1f}', with_counts=True, verbose=True):
         n = len(vals)
         s += '\nitem count = ' + str(n)
         s += '\nmax_height_value = ' + str(int(h))
+    if verbose:
+        print s
     return s
 
 def main(args):
