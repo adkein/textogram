@@ -1,12 +1,10 @@
-#!/usr/bin/python
-
 import ipdb
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-def textogram(vals, bins=None, fmt='{:5.1f}', with_counts=True):
+def plot(vals, bins=None, fmt='{:5.1f}', with_counts=True, verbose=True):
     bins = np.linspace(0, 1, 11) if bins is None else bins
     vals = np.array(vals)
     vals = vals[(vals >= bins[0]) & (vals <= bins[-1])]
@@ -26,7 +24,7 @@ def textogram(vals, bins=None, fmt='{:5.1f}', with_counts=True):
 def main(args):
     with open(args.infile, 'rb') as fp:
         vals = [float(line.strip()) for line in fp]
-    print textogram(vals, fmt=args.fmt)
+    plot(vals, fmt=args.fmt)
 
 
 if __name__ == '__main__':
