@@ -32,7 +32,12 @@ def plot(vals, bins=None, fmt='{:5.1f}', with_counts=True, display=True, yscale=
 
 def main(args):
     with open(args.infile, 'rb') as fp:
-        vals = [float(line.strip()) for line in fp]
+        vals = []
+        for line in fp:
+            try:
+                vals.append(float(line.strip()))
+            except ValueError:
+                pass
     plot(vals, fmt=args.fmt, yscale=args.yscale)
 
 
