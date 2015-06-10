@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import ipdb
 import numpy as np
 import matplotlib
@@ -7,9 +5,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
-def plot(vals, bins=None, fmt='{:5.1f}', with_counts=True, display=True, yscale='lin'):
-    bins = np.linspace(0, 1, 11) if bins is None else bins
-    bins = np.linspace(min(vals), max(vals), 11)
+def plot(vals, bins, fmt='{:5.1f}', with_counts=True, yscale='lin'):
     vals = np.array(vals).astype(float)
     vals = vals[(vals >= bins[0]) & (vals <= bins[-1])]
     bin_vals, left_edges, _ = plt.hist(vals, bins=bins)
@@ -25,10 +21,7 @@ def plot(vals, bins=None, fmt='{:5.1f}', with_counts=True, display=True, yscale=
         n = len(vals)
         s += '\nitem count = ' + str(n)
         s += '\nmax_height_value = ' + str(int(h))
-    if display:
-        print s
-    else:
-        return s
+    return s
 
 def main(args):
     with open(args.infile, 'rb') as fp:
@@ -38,14 +31,31 @@ def main(args):
                 vals.append(float(line.strip()))
             except ValueError:
                 pass
-    plot(vals, fmt=args.fmt, yscale=args.yscale)
+    bins = args.bins
+    if bins is None:
+        n = args.num_bins
+        v_min = args.min if args.min is not None else min(vals)
+        v_max = args.max if args.max is not None else max(vals)
+        bins = np.linspace(v_min, v_max, n+1)
+    kwargs = {
+            'fmt': args.fmt,
+            'yscale': args.yscale,
+            'with_counts': args.with_counts,
+            }
+    print plot(vals, bins, **kwargs)
 
 
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('infile', nargs='?', default='/dev/stdin')
-    parser.add_argument('--yscale', '-y', choices=['lin', 'log'], default='lin')
+    parser.add_argument('--bins', '-b', nargs='+')
     parser.add_argument('--fmt', '-f', default='{:5.1f}')
+    parser.add_argument('--min', '-a', type=float)
+    parser.add_argument('--max', '-z', type=float)
+    parser.add_argument('--num-bins', '-n', type=int, default=10)
+    parser.add_argument('--yscale', '-y', choices=['lin', 'log'], default='lin')
+    parser.add_argument('--with-counts', action='store_false')
     args = parser.parse_args()
     main(args)
+
