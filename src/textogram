@@ -5,6 +5,12 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
+'''
+A script to read in a list of numbers and output an ASCII histogram of them.
+Various optional arguments control the format of the output.
+'''
+
+
 # TO DO: Have plot return an object that can with other, new methods, be used
 # to generate new plots -- e.g. with different bins -- without recomputing
 # everything from raw data again.
