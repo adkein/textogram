@@ -10,6 +10,21 @@ import matplotlib.pyplot as plt
 '''
 A script to read in a list of numbers and output an ASCII histogram of them.
 Various optional arguments control the format of the output.
+
+Example: Here's me finding out how long my commit titles are.
+
+    $ git log --format=%s | awk '{print length}' | textogram
+
+      4 -  15: ###################                                 (96.0)
+     15 -  26: ##################################################  (247.0)
+     26 -  37: ####################################                (180.0)
+     37 -  48: ########################                            (123.0)
+     48 -  58: ######                                              (31.0)
+     58 -  69:                                                     (1.0)
+     69 -  80:                                                     (0.0)
+     80 -  91:                                                     (0.0)
+     91 - 102:                                                     (0.0)
+    102 - 113:                                                     (3.0)
 '''
 
 
