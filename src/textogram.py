@@ -5,22 +5,37 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
-def plot(vals, bins, fmt='{:5.1f}', with_counts=True, yscale='lin'):
+# TO DO: Have plot return an object that can with other, new methods, be used
+# to generate new plots -- e.g. with different bins -- without recomputing
+# everything from raw data again.
+
+
+def plot(vals, bins, fmt='{:5.1f}', N=None, with_counts=True, yscale='lin', height=20):
     vals = np.array(vals).astype(float)
+    left_tail = vals[(vals < bins[0])]
+    right_tail = vals[(vals > bins[-1])]
     vals = vals[(vals >= bins[0]) & (vals <= bins[-1])]
     bin_vals, left_edges, _ = plt.hist(vals, bins=bins)
     if yscale == 'log':
         bin_vals[bin_vals > 0] = np.log2(bin_vals[bin_vals > 0]) + 1
     s = '\n'
-    h = max(bin_vals)
+    bin_val_max = max(bin_vals)
+    max_bar_height = height
+    sep = ' - '
+    if len(left_tail) > 0:
+        s += '<' + str(bins[0]) + ': (' + str(len(left_tail)) + ')\n'
     for i in range(len(left_edges)-1):
         right_edge = fmt.format(left_edges[i+1]) if i < len(left_edges) - 1 else '*'
-        s += fmt.format(left_edges[i]) + ' - ' + right_edge + ': '
-        s += '#' * int(20 * bin_vals[i] / h) + '\n'
-    if with_counts:
-        n = len(vals)
-        s += '\nitem count = ' + str(n)
-        s += '\nmax_height_value = ' + str(int(h))
+        prefix = fmt.format(left_edges[i]) + sep + right_edge + ': '
+        prefix_length = len(prefix)
+        s += prefix
+        bar_height = int(max_bar_height * bin_vals[i] / bin_val_max)
+        s += '#' * bar_height + ' ' * (max_bar_height - bar_height)
+        if with_counts:
+            s += ' ' * 2 + '(' + str(bin_vals[i]) + ')'
+        s += '\n'
+    if len(right_tail) > 0:
+        s += '>' + str(bins[-1]) + ': (' + str(len(right_tail)) + ')\n'
     return s
 
 def main(args):
@@ -32,15 +47,27 @@ def main(args):
             except ValueError:
                 pass
     bins = args.bins
+    v_min = args.min if args.min is not None else min(vals)
+    v_max = args.max if args.max is not None else max(vals)
+    shown_vals = [v for v in vals if v >= v_min and v <= v_max]
     if bins is None:
         n = args.num_bins
-        v_min = args.min if args.min is not None else min(vals)
-        v_max = args.max if args.max is not None else max(vals)
         bins = np.linspace(v_min, v_max, n+1)
+    fmt = args.fmt
+    if fmt is None:
+        if v_max - v_min < len(bins):
+            w = max(map(lambda x: len(str(x)), shown_vals)) - 1
+            t, p = 'f', 1
+        else:
+            w = max(map(lambda x: len(str(int(x))), shown_vals)) - 1
+            t, p = 'f', 0
+        w += p + 1
+        fmt = '{:' + str(w) + '.' + str(p) + t + '}'
     kwargs = {
-            'fmt': args.fmt,
-            'yscale': args.yscale,
+            'fmt': fmt,
+            'height': args.height,
             'with_counts': args.with_counts,
+            'yscale': args.yscale,
             }
     print plot(vals, bins, **kwargs)
 
@@ -50,7 +77,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('infile', nargs='?', default='/dev/stdin')
     parser.add_argument('--bins', '-b', nargs='+')
-    parser.add_argument('--fmt', '-f', default='{:5.1f}')
+    parser.add_argument('--fmt', '-f', default=None)
+    parser.add_argument('--height', type=int, default=50)
     parser.add_argument('--min', '-a', type=float)
     parser.add_argument('--max', '-z', type=float)
     parser.add_argument('--num-bins', '-n', type=int, default=10)
