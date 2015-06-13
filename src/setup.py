@@ -6,5 +6,5 @@ setup(
         author='Carl Smith',
         author_email='adkein@gmail.com',
         url='https://github.com/adkein/textogram',
-        py_modules=['textogram']
+        scripts=['textogram'],
         )
