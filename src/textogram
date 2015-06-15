@@ -42,6 +42,7 @@ def plot(vals, bins, N=None, with_counts=True, yscale='lin', height=20):
     right_tail = vals[(vals > bins[-1])]
     vals = vals[(vals >= bins[0]) & (vals <= bins[-1])]
     bin_vals, left_edges, _ = plt.hist(vals, bins=bins)
+    bin_counts = list(bin_vals)
     if yscale == 'log':
         bin_vals[bin_vals > 0] = np.log2(bin_vals[bin_vals > 0]) + 1
     labels = get_bin_labels(left_edges, left_tail=len(left_tail)>0, right_tail=len(right_tail)>0)
@@ -58,7 +59,7 @@ def plot(vals, bins, N=None, with_counts=True, yscale='lin', height=20):
         bar_height = int(max_bar_height * bin_vals[i] / bin_val_max)
         s += '#' * bar_height + ' ' * (max_bar_height - bar_height)
         if with_counts:
-            s += ' ' * 2 + '(' + str(bin_vals[i]) + ')'
+            s += ' ' * 2 + '(' + str(bin_counts[i]) + ')'
         s += '\n'
     if len(right_tail) > 0:
         s += labels[-1] + ' : (' + str(len(right_tail)) + ')\n'
