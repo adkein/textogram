@@ -13,18 +13,21 @@ Various optional arguments control the format of the output.
 
 Example: Here's me finding out how long my commit titles are.
 
-    $ git log --format=%s | awk '{print length}' | textogram
+$ git log --format=%s | awk '{print length}' | textogram -a 0 -z 60 -n 12
 
-      4 -  15: ###################                                 (96.0)
-     15 -  26: ##################################################  (247.0)
-     26 -  37: ####################################                (180.0)
-     37 -  48: ########################                            (123.0)
-     48 -  58: ######                                              (31.0)
-     58 -  69:                                                     (1.0)
-     69 -  80:                                                     (0.0)
-     80 -  91:                                                     (0.0)
-     91 - 102:                                                     (0.0)
-    102 - 113:                                                     (3.0)
+ 0 - 5  :                                                     (1.0)
+ 5 - 10 : ############                                        (30.0)
+10 - 15 : ###########################                         (66.0)
+15 - 20 : ##################################################  (118.0)
+20 - 25 : #################################################   (116.0)
+25 - 30 : #####################################               (89.0)
+30 - 35 : ###############################                     (74.0)
+35 - 40 : ################################                    (76.0)
+40 - 45 : ########################                            (58.0)
+45 - 50 : ##################                                  (44.0)
+50 - 55 : ###                                                 (9.0)
+55 - 60 :                                                     (0.0)
+    >60 : (4)
 '''
 
 
@@ -33,7 +36,7 @@ Example: Here's me finding out how long my commit titles are.
 # everything from raw data again.
 
 
-def plot(vals, bins, fmt='{:5.1f}', N=None, with_counts=True, yscale='lin', height=20):
+def plot(vals, bins, N=None, with_counts=True, yscale='lin', height=20):
     vals = np.array(vals).astype(float)
     left_tail = vals[(vals < bins[0])]
     right_tail = vals[(vals > bins[-1])]
@@ -41,15 +44,15 @@ def plot(vals, bins, fmt='{:5.1f}', N=None, with_counts=True, yscale='lin', heig
     bin_vals, left_edges, _ = plt.hist(vals, bins=bins)
     if yscale == 'log':
         bin_vals[bin_vals > 0] = np.log2(bin_vals[bin_vals > 0]) + 1
+    labels = get_bin_labels(left_edges, left_tail=len(left_tail)>0, right_tail=len(right_tail)>0)
     s = '\n'
     bin_val_max = max(bin_vals)
     max_bar_height = height
     sep = ' - '
     if len(left_tail) > 0:
-        s += '<' + str(bins[0]) + ': (' + str(len(left_tail)) + ')\n'
+        s += labels.pop(0) + ' : (' + str(len(left_tail)) + ')\n'
     for i in range(len(left_edges)-1):
-        right_edge = fmt.format(left_edges[i+1]) if i < len(left_edges) - 1 else '*'
-        prefix = fmt.format(left_edges[i]) + sep + right_edge + ': '
+        prefix = labels[i] + ' : '
         prefix_length = len(prefix)
         s += prefix
         bar_height = int(max_bar_height * bin_vals[i] / bin_val_max)
@@ -58,8 +61,34 @@ def plot(vals, bins, fmt='{:5.1f}', N=None, with_counts=True, yscale='lin', heig
             s += ' ' * 2 + '(' + str(bin_vals[i]) + ')'
         s += '\n'
     if len(right_tail) > 0:
-        s += '>' + str(bins[-1]) + ': (' + str(len(right_tail)) + ')\n'
+        s += labels[-1] + ' : (' + str(len(right_tail)) + ')\n'
     return s
+
+def get_bin_labels(edges, left_tail=False, right_tail=False):
+    w = max(map(lambda x: len(str(int(x))), edges))
+    min_step = np.inf
+    for i in range(len(edges)-1):
+        min_step = min(min_step, edges[i+1] - edges[i])
+    if min_step < 1:
+        p = -int('{:e}'.format(min_step).split('e')[1])
+    else:
+        p = 0
+    res = []
+    fmt_suffix = str(w+p) + ',.' + str(p) + 'f}'
+    for i in range(len(edges)-1):
+        label = ('{: >' + fmt_suffix).format(edges[i])
+        label += ' - '
+        label += ('{: <' + fmt_suffix).format(edges[i+1])
+        res.append(label)
+    if left_tail:
+        label = '<' + ('{:' + fmt_suffix).format(edges[0])
+        label = ' ' * (len(res[0]) - len(label)) + label
+        res.insert(0, label)
+    if right_tail:
+        label = '>' + ('{:' + fmt_suffix).format(edges[-1])
+        label = ' ' * (len(res[0]) - len(label)) + label
+        res.append(label)
+    return res
 
 def main(args):
     with open(args.infile, 'rb') as fp:
@@ -76,18 +105,7 @@ def main(args):
     if bins is None:
         n = args.num_bins
         bins = np.linspace(v_min, v_max, n+1)
-    fmt = args.fmt
-    if fmt is None:
-        if v_max - v_min < len(bins):
-            w = max(map(lambda x: len(str(x)), shown_vals)) - 1
-            t, p = 'f', 1
-        else:
-            w = max(map(lambda x: len(str(int(x))), shown_vals)) - 1
-            t, p = 'f', 0
-        w += p + 1
-        fmt = '{:' + str(w) + '.' + str(p) + t + '}'
     kwargs = {
-            'fmt': fmt,
             'height': args.height,
             'with_counts': args.with_counts,
             'yscale': args.yscale,
@@ -100,7 +118,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('infile', nargs='?', default='/dev/stdin')
     parser.add_argument('--bins', '-b', nargs='+')
-    parser.add_argument('--fmt', '-f', default=None)
     parser.add_argument('--height', type=int, default=50)
     parser.add_argument('--min', '-a', type=float)
     parser.add_argument('--max', '-z', type=float)
