@@ -36,8 +36,16 @@ $ git log --format=%s | awk '{print length}' | textogram -a 0 -z 60 -n 12
 # everything from raw data again.
 
 
-def plot(vals, bins, N=None, with_counts=True, yscale='lin', height=20):
+def textogram(vals, **kwargs):
+    print get_textogram(vals, **kwargs)
+
+def get_textogram(vals, bins=None, N=10, xmin=None, xmax=None, with_counts=True, yscale='lin', height=60):
     vals = np.array(vals).astype(float)
+    v_min = xmin if xmin is not None else min(vals)
+    v_max = xmax if xmax is not None else max(vals)
+    if bins is None:
+        bins = np.linspace(v_min, v_max, N+1)
+    n_tot = len(vals)
     left_tail = vals[(vals < bins[0])]
     right_tail = vals[(vals > bins[-1])]
     vals = vals[(vals >= bins[0]) & (vals <= bins[-1])]
@@ -50,8 +58,9 @@ def plot(vals, bins, N=None, with_counts=True, yscale='lin', height=20):
     bin_val_max = max(bin_vals)
     max_bar_height = height
     sep = ' - '
+    pct_fmt = '{: >3d}'
     if len(left_tail) > 0:
-        s += labels.pop(0) + ' : (' + str(len(left_tail)) + ')\n'
+        s += labels.pop(0) + ' : ' + format_percentage(len(left_tail)/float(n_tot), fmt='{:d}') + ' (' + str(len(left_tail)) + ')\n'
     for i in range(len(left_edges)-1):
         prefix = labels[i] + ' : '
         prefix_length = len(prefix)
@@ -59,11 +68,14 @@ def plot(vals, bins, N=None, with_counts=True, yscale='lin', height=20):
         bar_height = int(max_bar_height * bin_vals[i] / bin_val_max)
         s += '#' * bar_height + ' ' * (max_bar_height - bar_height)
         if with_counts:
-            s += ' ' * 2 + '(' + str(bin_counts[i]) + ')'
+            s += ' ' * 2 + format_percentage(bin_counts[i]/n_tot) + ' (' + str(bin_counts[i]) + ')'
         s += '\n'
     if len(right_tail) > 0:
-        s += labels[-1] + ' : (' + str(len(right_tail)) + ')\n'
+        s += labels[-1] + ' : ' + format_percentage(len(right_tail)/float(n_tot), fmt='{:d}') + ' (' + str(len(right_tail)) + ')\n'
     return s
+
+def format_percentage(r, fmt='{: >3d}'):
+    return fmt.format(int(100 * r)) + '%'
 
 def get_bin_labels(edges, left_tail=False, right_tail=False):
     w = max(map(lambda x: len(str(int(x))), edges))
@@ -75,7 +87,7 @@ def get_bin_labels(edges, left_tail=False, right_tail=False):
     else:
         p = 0
     res = []
-    fmt_suffix = str(w+p) + ',.' + str(p) + 'f}'
+    fmt_suffix = str(w+p) + '.' + str(p) + 'f}'
     for i in range(len(edges)-1):
         label = ('{: >' + fmt_suffix).format(edges[i])
         label += ' - '
@@ -99,19 +111,13 @@ def main(args):
                 vals.append(float(line.strip()))
             except ValueError:
                 pass
-    bins = args.bins
-    v_min = args.min if args.min is not None else min(vals)
-    v_max = args.max if args.max is not None else max(vals)
-    shown_vals = [v for v in vals if v >= v_min and v <= v_max]
-    if bins is None:
-        n = args.num_bins
-        bins = np.linspace(v_min, v_max, n+1)
     kwargs = {
+            'bins': args.bins,
             'height': args.height,
             'with_counts': args.with_counts,
             'yscale': args.yscale,
             }
-    print plot(vals, bins, **kwargs)
+    textogram(vals, **kwargs)
 
 
 if __name__ == '__main__':
