@@ -116,6 +116,7 @@ def main(args):
     kwargs = {
             'bins': args.bins,
             'height': args.height,
+            'N': args.num_bins,
             'with_counts': args.with_counts,
             'xmin': args.min,
             'xmax': args.max,
