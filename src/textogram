@@ -2,9 +2,6 @@
 
 import ipdb
 import numpy as np
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 
 
 '''
@@ -43,13 +40,12 @@ def get_textogram(vals, bins=None, N=10, xmin=None, xmax=None, with_counts=True,
     vals = np.array(vals).astype(float)
     v_min = xmin if xmin is not None else min(vals)
     v_max = xmax if xmax is not None else max(vals)
-    if bins is None:
-        bins = np.linspace(v_min, v_max, N+1)
+    left_edges = np.linspace(v_min, v_max, N+1) if bins is None else bins
     n_tot = len(vals)
-    left_tail = vals[(vals < bins[0])]
-    right_tail = vals[(vals > bins[-1])]
-    vals = vals[(vals >= bins[0]) & (vals <= bins[-1])]
-    bin_vals, left_edges, _ = plt.hist(vals, bins=bins)
+    left_tail = vals[(vals < left_edges[0])]
+    right_tail = vals[(vals > left_edges[-1])]
+    vals = vals[(vals >= left_edges[0]) & (vals <= left_edges[-1])]
+    bin_vals = hist(vals, left_edges)
     bin_counts = list(bin_vals)
     if yscale == 'log':
         bin_vals[bin_vals > 0] = np.log2(bin_vals[bin_vals > 0]) + 1
@@ -73,6 +69,12 @@ def get_textogram(vals, bins=None, N=10, xmin=None, xmax=None, with_counts=True,
     if len(right_tail) > 0:
         s += labels[-1] + ' : ' + format_percentage(len(right_tail)/float(n_tot), fmt='{:d}') + ' (' + str(len(right_tail)) + ')\n'
     return s
+
+def hist(vals, left_edges):
+    res = []
+    for i in range(len(left_edges)-1):
+        res.append(len(vals[(vals >= left_edges[i]) & (vals < left_edges[i+1])]))
+    return res
 
 def format_percentage(r, fmt='{: >3d}'):
     return fmt.format(int(100 * r)) + '%'
@@ -115,6 +117,8 @@ def main(args):
             'bins': args.bins,
             'height': args.height,
             'with_counts': args.with_counts,
+            'xmin': args.min,
+            'xmax': args.max,
             'yscale': args.yscale,
             }
     textogram(vals, **kwargs)
