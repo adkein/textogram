@@ -36,7 +36,8 @@ $ git log --format=%s | awk '{print length}' | textogram -a 0 -z 60 -n 12
 def textogram(vals, **kwargs):
     print get_textogram(vals, **kwargs)
 
-def get_textogram(vals, bins=None, N=10, xmin=None, xmax=None, with_counts=True, yscale='lin', height=60):
+def get_textogram(vals, bins=None, N=10, xmin=None, xmax=None,
+        with_counts=True, yscale='lin', height=60, char='#'):
     vals = np.array(vals).astype(float)
     v_min = xmin if xmin is not None else min(vals)
     v_max = xmax if xmax is not None else max(vals)
@@ -62,7 +63,7 @@ def get_textogram(vals, bins=None, N=10, xmin=None, xmax=None, with_counts=True,
         prefix_length = len(prefix)
         s += prefix
         bar_height = int(max_bar_height * bin_vals[i] / bin_val_max)
-        s += '#' * bar_height + ' ' * (max_bar_height - bar_height)
+        s += char * bar_height + ' ' * (max_bar_height - bar_height)
         if with_counts:
             s += ' ' * 2 + format_percentage(bin_counts[i]/n_tot) + ' (' + str(bin_counts[i]) + ')'
         s += '\n'
@@ -115,6 +116,7 @@ def main(args):
                 pass
     kwargs = {
             'bins': args.bins,
+            'char': args.char,
             'height': args.height,
             'N': args.num_bins,
             'with_counts': args.with_counts,
@@ -130,6 +132,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('infile', nargs='?', default='/dev/stdin')
     parser.add_argument('--bins', '-b', nargs='+')
+    parser.add_argument('--char', '-c', default='#')
     parser.add_argument('--height', type=int, default=50)
     parser.add_argument('--min', '-a', type=float)
     parser.add_argument('--max', '-z', type=float)
