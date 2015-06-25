@@ -42,6 +42,8 @@ def linspace(a, b, n):
 
 def get_textogram(vals, bins=None, N=10, xmin=None, xmax=None,
         with_counts=True, yscale='lin', height=60, char='#'):
+    if len(vals) == 0:
+        return 'No data.'
     vals = [float(v) for v in vals]
     v_min = xmin if xmin is not None else min(vals)
     v_max = xmax if xmax is not None else max(vals)
