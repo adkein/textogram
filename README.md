@@ -60,4 +60,4 @@ Now let me plot it with logarithmic y-axis _just because I can_.
 Installation
 ----
 
-    $ python src/setup.py install
+    $ python setup.py install

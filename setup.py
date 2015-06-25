@@ -1,4 +1,5 @@
-from distutils.core import setup
+from setuptools import setup
+
 setup(
         name='textogram',
         version='0.1',
@@ -6,6 +7,7 @@ setup(
         author='Carl Smith',
         author_email='adkein@gmail.com',
         url='https://github.com/adkein/textogram',
+        package_dir={'': 'src'},
         py_modules=['textogram'],
-        scripts=['textogram'],
+        scripts=['src/textogram'],
         )
