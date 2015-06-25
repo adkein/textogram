@@ -42,6 +42,8 @@ Now let me focus in on the meat of the distribution and make the bin edges tidy.
 
 Now let me plot it with logarithmic y-axis _just because I can_.
 
+    $ git log --format=%s | awk '{print length}' | textogram -a 0 -z 60 -n 12 -y log
+
      0 - 5  : ######                                              (1.0)
      5 - 10 : #####################################               (30.0)
     10 - 15 : ############################################        (66.0)
