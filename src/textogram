@@ -70,8 +70,8 @@ def get_textogram(vals, bins=None, N=10, xmin=None, xmax=None,
         s += prefix
         bar_height = int(max_bar_height * bin_vals[i] / bin_val_max)
         s += char * bar_height + ' ' * (max_bar_height - bar_height)
-        if with_counts:
-            s += ' ' * 2 + format_percentage(bin_counts[i]/n_tot) + ' (' + str(bin_counts[i]) + ')'
+        if with_counts and bin_counts[i] > 0:
+            s += ' ' * 2 + format_percentage(bin_counts[i]/float(n_tot)) + ' (' + str(bin_counts[i]) + ')'
         s += '\n'
     if len(right_tail) > 0:
         s += labels[-1] + ' : ' + format_percentage(len(right_tail)/float(n_tot), fmt='{:d}') + ' (' + str(len(right_tail)) + ')\n'
