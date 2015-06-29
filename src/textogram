@@ -6,30 +6,7 @@ from math import log
 '''
 A script to read in a list of numbers and output an ASCII histogram of them.
 Various optional arguments control the format of the output.
-
-Example: Here's me finding out how long my commit titles are.
-
-$ git log --format=%s | awk '{print length}' | textogram -a 0 -z 60 -n 12
-
- 0 - 5  :                                                     (1.0)
- 5 - 10 : ############                                        (30.0)
-10 - 15 : ###########################                         (66.0)
-15 - 20 : ##################################################  (118.0)
-20 - 25 : #################################################   (116.0)
-25 - 30 : #####################################               (89.0)
-30 - 35 : ###############################                     (74.0)
-35 - 40 : ################################                    (76.0)
-40 - 45 : ########################                            (58.0)
-45 - 50 : ##################                                  (44.0)
-50 - 55 : ###                                                 (9.0)
-55 - 60 :                                                     (0.0)
-    >60 : (4)
 '''
-
-
-# TO DO: Have plot return an object that can with other, new methods, be used
-# to generate new plots -- e.g. with different bins -- without recomputing
-# everything from raw data again.
 
 
 def textogram(vals, **kwargs):
