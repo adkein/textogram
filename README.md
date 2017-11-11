@@ -40,7 +40,7 @@ Now let me focus in on the meat of the distribution and make the bin edges tidy.
     55 - 60 :                                                     (0.0)
         >60 : (4)
 
-Now let me plot it with logarithmic y-axis _just because I can_.
+We can also plot it with logarithmic y-axis.
 
     $ git log --format=%s | awk '{print length}' | textogram -a 0 -z 60 -n 12 -y log
 
