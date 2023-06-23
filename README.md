@@ -62,4 +62,4 @@ We can also plot it with logarithmic y-axis.
 Installation
 ----
 
-    $ python setup.py install
+    $ python3 setup.py install
