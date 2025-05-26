@@ -10,4 +10,7 @@ setup(
         package_dir={'': 'src'},
         py_modules=['textogram'],
         scripts=['src/textogram'],
+        install_requires=[
+            'matplotlib',
+        ],
         )
