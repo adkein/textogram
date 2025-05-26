@@ -2,3 +2,5 @@
 /data/
 /dist/
 *.egg-info/
+
+venv/
